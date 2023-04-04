@@ -32,6 +32,7 @@ const UserController = {
       });
     } catch (err) {
       console.error(err);
+      next(err)
     }
   },
 
