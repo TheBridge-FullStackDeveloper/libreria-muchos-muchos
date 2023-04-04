@@ -4,7 +4,12 @@
     "password": null,
     "database": "database_development",
     "host": "127.0.0.1",
-    "dialect": "mysql"
+    "dialect": "mysql",
+    "jwt_secret": "",
+    "auth": {
+      "user": "tu correo",
+      "pass": "tu contraseña especial de google"
+    }
   },
   "test": {
     "username": "root",
