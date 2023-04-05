@@ -1,8 +1,10 @@
-const { User } = require("../models/index");
+const { User, Token, Sequelize } = require("../models/index");
 const transporter = require("../config/nodemailer");
-const bcrypt = require("bcryptjs")
-const jwt = require("jsonwebtoken")
-const {jwt_secret} = require("../config/config.json")["development"]
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const { jwt_secret } = require("../config/config.json")["development"];
+const { Op } = Sequelize;
+
 const UserController = {
   async create(req, res, next) {
     try {
@@ -32,7 +34,7 @@ const UserController = {
       });
     } catch (err) {
       console.error(err);
-      next(err)
+      next(err);
     }
   },
 
@@ -57,7 +59,9 @@ const UserController = {
           .status(400)
           .send({ message: "Usuario o contraseña incorrectos" });
       }
-      res.send({ message: "Bienvenid@ " + user.name, user });
+      let token = jwt.sign({ id: user.id }, jwt_secret);
+      Token.create({ token, UserId: user.id });
+      res.send({ token, message: "Bienvenid@ " + user.name, user });
     } catch (err) {
       console.error(err);
     }
@@ -80,7 +84,45 @@ const UserController = {
       console.error(error);
     }
   },
+  getAll(req, res) {
+    User.findAll()
+      .then((users) => res.send(users))
+      .catch((err) => {
+        console.log(err);
+        res
+          .status(500)
+          .send({
+            message: "Ha habido un problema al cargar las publicaciones",
+          });
+      });
+  },
+
+  async update(req, res) {
+    await User.update(req.body, {
+      where: {
+        id: req.params.id,
+      },
+    });
+    res.send("Usuario actualizado con éxito");
+  },
+  async logout(req, res) {
+    try {
+      await Token.destroy({
+        where: {
+          [Op.and]: [
+            { UserId: req.user.id },
+            { token: req.headers.authorization },
+          ],
+        },
+      });
+      res.send({ message: "Desconectado con éxito" });
+    } catch (error) {
+      console.log(error);
+      res
+        .status(500)
+        .send({ message: "hubo un problema al tratar de desconectarte" });
+    }
+  },
 };
 
-
-module.exports = UserController
+module.exports = UserController;

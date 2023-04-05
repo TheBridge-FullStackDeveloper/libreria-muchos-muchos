@@ -2,6 +2,7 @@ const express = require("express");
 const app = express(); //inicializar express
 const PORT = 3000;
 const { typeError } = require('./middlewares/errors');
+console.log(process.env.NODE_ENV);
 
 app.use(express.json()); //parseamos el body
 
@@ -12,3 +13,5 @@ app.use("/users", require("./routes/users"));
 app.use(typeError)
 
 app.listen(PORT, () => console.log(`Servidor levantado en el puerto ${PORT}`));
+
+module.exports = app;
