@@ -15,7 +15,6 @@ describe("testing/users", () => {
   };
 
   beforeEach(async () => {
-    // Create a user and log in before each test
     resUser = await request(app).post("/users/register").send(user).expect(201);
     const emailToken = jwt.sign({ email: user.email }, jwt_secret, {
       expiresIn: "48h",
